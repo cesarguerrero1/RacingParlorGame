@@ -5,19 +5,24 @@ using UnityEngine;
 public class RacerScript : MonoBehaviour
 {
 
+    //Basic Racer Information
     public string racerName;
-    public float runSpeed;
-    public float trackLength;
-    public bool isRunning = false;
-    private Vector3 startingPosition;
-    private Vector3 Location;
-    public Transform currentPos;
-    private  bool badStart = false;
-    public bool raceWinner = false;
-    private  float badStartThreshold = 5f;
+    private float runSpeed;
+    private float trackLength;
+    private float badStartThreshold;
+
+    //Active Race Variables
+    private bool raceWinner = false;
+    private bool isRunning = false;
+    private bool badStart = false;
     private float badStartRanNum;
     private int counter = 0;
 
+    //Handle the racers location
+    public Transform currentPos;
+    private Vector3 startingPosition;
+    private Vector3 Location;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -42,7 +47,7 @@ public class RacerScript : MonoBehaviour
             }
         }
 
-        if(counter == 50){
+        if(counter == 75){
             badStart = false;
         }
 
@@ -66,6 +71,18 @@ public class RacerScript : MonoBehaviour
         if(badStartRanNum <= badStartThreshold){
             badStart = true;
         }
+        //Make the racers start running!
         isRunning = true;
+    }
+
+    public void RaceSetup(float runSpeed, float trackLength, float badStartThreshold){
+        //This sets the base values for the racer. Called via the racemanager.
+        this.runSpeed = runSpeed;
+        this.trackLength = trackLength;
+        this.badStartThreshold = badStartThreshold;
+    }
+
+    public bool WonRace(){
+        return raceWinner;
     }
 }

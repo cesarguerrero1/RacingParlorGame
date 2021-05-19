@@ -8,8 +8,9 @@ public class RaceManager : MonoBehaviour
     //This holds all of our Racers so we can access each of them
     public GameObject RacerParentObject;
     public Button RaceButton;
-    private float runSpeed = .015625f;
-    private float trackLength = 7.25f;
+    public float racerRunSpeed;
+    public float racerTrackLength;
+    public float racerBadStartThreshold;
     private List<GameObject> racers = new List<GameObject>();
 
     //Called before Start()
@@ -21,11 +22,10 @@ public class RaceManager : MonoBehaviour
             racers.Add(RacerParentObjectAccessor.GetChild(i).gameObject);
         }
 
+        //Activate the racers running animation and ensure the racer knows where it exists in space.
         foreach(GameObject racer in racers){
             RacerScript RacerScript = racer.GetComponent<RacerScript>();
             RacerScript.currentPos = racer.GetComponent<Transform>();
-            RacerScript.trackLength = trackLength;
-            RacerScript.runSpeed = runSpeed;
         }
         
     }
@@ -35,15 +35,13 @@ public class RaceManager : MonoBehaviour
     {
         foreach(GameObject racer in racers){
             //Check to see if someone won!
-            RacerScript RacerScript = racer.GetComponent<RacerScript>();
-            if(RacerScript.raceWinner == true){
+            bool wonRace = racer.GetComponent<RacerScript>().WonRace();
+            if(wonRace){
+                //A racer won! So stop the race for EVERYONE.
                 foreach(var racerOverride in racers){
-                    //Turn off the animatio and turn off the running!
                     racerOverride.GetComponent<Animator>().enabled = false;
                     racerOverride.GetComponent<RacerScript>().enabled = false;
                 }
-                //Enable the button so we can race again!
-                RaceButton.GetComponent<Button>().interactable = true;
                 return;
             }
         }
@@ -52,12 +50,13 @@ public class RaceManager : MonoBehaviour
     public void StartRace(){
         //Once that is done then we go through each racer and alter some items
         foreach(GameObject racer in racers){
+            //Start the animator, activate the script, and call some methods
             racer.GetComponent<Animator>().enabled = true;
             RacerScript RacerScript = racer.GetComponent<RacerScript>();
             RacerScript.enabled = true;
             RacerScript.TakeYourPosition();
+            RacerScript.RaceSetup(racerRunSpeed, racerTrackLength, racerBadStartThreshold);
         }
-
     }
 
 }
