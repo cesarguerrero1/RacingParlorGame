@@ -9,7 +9,7 @@ public class RacerScript : MonoBehaviour
 
     //Basic Racer Information
     public string RacerName;
-    private float RunSpeed = .015625f;
+    private float RunSpeed = .0625f;
     private float TrackLength;
     private float BadStartThreshold;
 
