@@ -1,88 +1,98 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class RacerScript : MonoBehaviour
 {
 
     //Basic Racer Information
-    public string racerName;
-    private float runSpeed;
-    private float trackLength;
-    private float badStartThreshold;
+    public string RacerName;
+    private float RunSpeed = .015625f;
+    private float TrackLength;
+    private float BadStartThreshold;
 
     //Active Race Variables
-    private bool raceWinner = false;
-    private bool isRunning = false;
-    private bool badStart = false;
-    private float badStartRanNum;
-    private int counter = 0;
+    private bool RaceWinner = false;
+    private bool IsRunning = false;
+    private bool BadStart = false;
+    private int BadStartAffectedTime = 75;
+    private float BadStartRanNum;
+    private int BadStartCounter = 0;
 
     //Handle the racers location
-    public Transform currentPos;
-    private Vector3 startingPosition;
+    public Transform CurrentPos;
+    private Vector3 StartingPosition;
     private Vector3 Location;
+
+    //Label each Racer
+    public TMP_Text RacerLabel;
     
     // Start is called before the first frame update
-    void Start()
-    {
+    void Awake(){
+        RacerLabel.text = RacerName;
+    }
+
+    void Start(){
         //We just need to handle letting the critter know where home is at all times.
-        startingPosition = currentPos.position;
+        StartingPosition = CurrentPos.position;
     }
 
     // Update is called once per frame
     void Update()
     {   
         //Recall that UNLESS you call a return, the Update Loop will run to completion
-        if(isRunning){
-            if(badStart == true){
-                counter++;
+        if(IsRunning){
+            if(BadStart == true){
+                BadStartCounter++;
                 float distanceMoved = Random.value * .001f;
                 Location.x += distanceMoved;
-                currentPos.position = Location;
+                CurrentPos.position = Location;
             }else{
-                float distanceMoved = Random.value * runSpeed;
+                float distanceMoved = Random.value * RunSpeed;
                 Location.x += distanceMoved;
-                currentPos.position = Location;
+                CurrentPos.position = Location;
+            }
+            //After the movement check some conditions
+            if(BadStartCounter == BadStartAffectedTime){
+                BadStart = false;
+            }
+
+            if(Location.x >= TrackLength){
+                RaceWinner = true;
+                return;
             }
         }
-
-        if(counter == 75){
-            badStart = false;
-        }
-
-        if(Location.x >= trackLength){
-            raceWinner = true;
-            return;
-        }
     }
 
-    //NOTE! This MUST be called via the "RACE" button for each dino.
-    public void TakeYourPosition(){
-        //Send the charactr back to the starting line  and rest all data values.
-        currentPos.position = startingPosition;
-        Location = currentPos.position;
+    public void TakePosition(){
+        //Send the charactr back to the starting line and reset all data values.
+        CurrentPos.position = StartingPosition;
+        Location = CurrentPos.position;
 
         //Reset the racers to the start before every race and clear any racer conditions
-        badStart = false;
-        raceWinner = false;
+        BadStart = false;
+        RaceWinner = false;
 
-        badStartRanNum = Random.value * 100f;
-        if(badStartRanNum <= badStartThreshold){
-            badStart = true;
+        BadStartRanNum = Random.value * 100f;
+        if(BadStartRanNum <= BadStartThreshold){
+            BadStart = true;
         }
         //Make the racers start running!
-        isRunning = true;
+        IsRunning = true;
     }
 
-    public void RaceSetup(float runSpeed, float trackLength, float badStartThreshold){
+    public void Setup(float trackLength, float badStartThreshold){
         //This sets the base values for the racer. Called via the racemanager.
-        this.runSpeed = runSpeed;
-        this.trackLength = trackLength;
-        this.badStartThreshold = badStartThreshold;
+        this.TrackLength = trackLength;
+        this.BadStartThreshold = badStartThreshold;
     }
 
     public bool WonRace(){
-        return raceWinner;
+        return RaceWinner;
+    }
+    public void SetRun(bool isRunning){
+        this.IsRunning = isRunning;
     }
 }
